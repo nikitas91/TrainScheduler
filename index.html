@@ -42,24 +42,24 @@
         <div class="panel panel-primary">
             <div class="panel-heading">Add Train</div>
             <div class="panel-body">
-                <form onsubmit="return validateForm()">
+                <form>
                     <div class="form-group">
-                        <label for="train-name">Train Name</label>
+                        <label for="train-name" class="control-label">Train Name</label>
                         <input type="text" class="form-control" id="train-name" placeholder="Name">
                     </div>
                     <div class="form-group">
-                        <label for="train-dest">Destination</label>
+                        <label for="train-dest" class="control-label">Destination</label>
                         <input type="text" class="form-control" id="train-dest" placeholder="Destination">
                     </div>
                     <div class="form-group">
-                        <label for="train-time">First Train Time (HH:mm - military time)</label>
+                        <label for="train-time" class="control-label">First Train Time (HH:mm - military time)</label>
                         <input type="text" class="form-control" id="train-time" placeholder="Train Time">
                     </div>
                     <div class="form-group">
-                        <label for="train-freq">Frequency (min)</label>
+                        <label for="train-freq" class="control-label">Frequency (min)</label>
                         <input type="text" class="form-control" id="train-freq" placeholder="Train Frequency">
                     </div>
-                    <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+                    <button id="submit" type="submit" value="Submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>
         </div>

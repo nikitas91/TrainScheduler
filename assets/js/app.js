@@ -15,24 +15,28 @@ var database = firebase.database();
 $("#submit").on("click", function(){
     event.preventDefault();
 
-    var tName = $("#train-name").val().trim();
-    var tDest = $("#train-dest").val().trim();
-    var tTime = $("#train-time").val().trim();
-    var tFreq = $("#train-freq").val().trim();
-    var tDateTime = moment(tTime, "hh:mm").format("X");
+    if(validateForm()){
+        $(".form-group").removeClass("has-error");
 
-    database.ref().push({
-        trainName: tName,
-        trainDestination: tDest,
-        trainStartTime: tDateTime,
-        trainFrequency: tFreq
-    });
+        var tName = $("#train-name").val().trim();
+        var tDest = $("#train-dest").val().trim();
+        var tTime = $("#train-time").val().trim();
+        var tFreq = $("#train-freq").val().trim();
+        var tDateTime = moment(tTime, "hh:mm").format("X");
 
-    $("#train-name").val("");
-    $("#train-dest").val("");
-    $("#train-time").val("");
-    $("#train-freq").val("");
-    $("#train-name").focus();
+        // database.ref().push({
+        //     trainName: tName,
+        //     trainDestination: tDest,
+        //     trainStartTime: tDateTime,
+        //     trainFrequency: tFreq
+        // });
+
+        $("#train-name").val("");
+        $("#train-dest").val("");
+        $("#train-time").val("");
+        $("#train-freq").val("");
+        $("#train-name").focus();
+    }
 });
 
 database.ref().on("child_added", function(childSnapShot){
@@ -90,3 +94,24 @@ database.ref().on("child_added", function(childSnapShot){
 
     $("#train-schedule-table tbody").append(tr_TrainRecord);
 });
+
+function validateForm(){
+    var validated = true;
+    if($("#train-name").val() === ""){
+        $("#train-name").parent().addClass("has-error");
+        validated = false;
+    }
+    if($("#train-dest").val() === ""){
+        $("#train-dest").parent().addClass("has-error");
+        validated = false;
+    }
+    if($("#train-time").val() === ""){
+        $("#train-time").parent().addClass("has-error");
+        validated = false;
+    }
+    if($("#train-freq").val() === ""){
+        $("#train-freq").parent().addClass("has-error");
+        validated = false;
+    }
+    return validated;
+}
