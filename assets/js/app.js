@@ -19,24 +19,54 @@ $("#submit").on("click", function(){
     var tDest = $("#train-dest").val().trim();
     var tTime = $("#train-time").val().trim();
     var tFreq = $("#train-freq").val().trim();
-    var tDateTime = moment(tTime, "hh:mm").format("M/D/YYYY, hh:mm A");
-    console.log("Train Name: " + tName);
-    console.log("Train Destination: " + tDest);
-    console.log("Train Time: " + tTime);
-    console.log("Train Frequency: " + tFreq);
-    console.log("Train Start Date and Time: " + tDateTime);
+    var tDateTime = moment(tTime, "hh:mm").format("X");
 
-    // database.ref().push({
-    //     trainName: tName,
-    //     trainDestination: tDest,
-    //     trainTime: tTime,
-    //     trainFrequency: tFreq
-    // });
+    database.ref().push({
+        trainName: tName,
+        trainDestination: tDest,
+        trainStartTime: tDateTime,
+        trainFrequency: tFreq
+    });
+
+    $("#train-name").val("");
+    $("#train-dest").val("");
+    $("#train-time").val("");
+    $("#train-freq").val("");
+    $("#train-name").focus();
 });
 
 database.ref().on("child_added", function(childSnapShot){
-    var tr_TrainRecord = $("<tr>");
 
+    //  Local variables
+    //var currentDate = moment("2017-12-13 02:05:00");
+    var currentDate = moment();
+    var currentTrainStartTime = moment.unix(childSnapShot.val().trainStartTime);
+
+    console.log("--------------------------------------------------");
+    console.log("Train: " + childSnapShot.val().trainName)
+    console.log("Current Date: " + currentDate.format("MM/DD/YYYY, hh:mm A"));
+    console.log("Train Start Time: " + currentTrainStartTime.format("MM/DD/YYYY, hh:mm A"));
+    console.log("--------------------------------------------------");
+
+    var frequencyOfArrival = parseInt(childSnapShot.val().trainFrequency);
+    var timeDifferenceInMinutes;
+    var trainRemainder;
+    var minutesToArrival;
+    var nextTrainTime;
+
+    timeDifferenceInMinutes = currentDate.diff(currentTrainStartTime, "minutes");
+
+    if(timeDifferenceInMinutes < 0){
+        minutesToArrival = timeDifferenceInMinutes * -1;
+        nextTrainTime = currentDate.add(minutesToArrival, "minutes");
+    }
+    else{
+        trainRemainder = timeDifferenceInMinutes % frequencyOfArrival;
+        minutesToArrival = frequencyOfArrival - trainRemainder;
+        nextTrainTime = currentDate.add(minutesToArrival, "minutes");
+    }
+
+    var tr_TrainRecord = $("<tr>");
     var td_TrainName = $("<td>");
     td_TrainName.text(childSnapShot.val().trainName);
 
@@ -44,15 +74,13 @@ database.ref().on("child_added", function(childSnapShot){
     td_TrainDestination.text(childSnapShot.val().trainDestination);
 
     var td_TrainFrequency = $("<td>");
-    td_TrainFrequency.text(childSnapShot.val().trainFrequency);
+    td_TrainFrequency.text(frequencyOfArrival);
 
-    //  Use this to calculate next arrival time and minutes away
-    //  childSnapShot.val().trainTime
     var td_NextArrival = $("<td>");
-    td_TrainTime.text("-");
+    td_NextArrival.text(nextTrainTime.format("M/DD/YYYY, hh:mm A"));
 
     var td_MinutesAway = $("<td>");
-    td_MinutesAway.text("-");
+    td_MinutesAway.text(minutesToArrival);
 
     tr_TrainRecord.append(td_TrainName);
     tr_TrainRecord.append(td_TrainDestination);
