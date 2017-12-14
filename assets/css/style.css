@@ -1,3 +1,9 @@
 .table{
     table-layout: fixed;
 }
+
+.panel-heading p{
+    display: inline-block;
+    font-size: 14px;
+    margin: 7px 0 0 0;
+}

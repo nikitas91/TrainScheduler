@@ -16,51 +16,60 @@
 
 <body>
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="jumbotron">
             <h1 class="text-center">Train Scheduler App</h1>
             <p class="text-center">Choo Choo. Chee Chee.</p>
         </div>
-        <div class="panel panel-primary">
-            <div class="panel-heading">Current Train Schedule</div>
-            <div class="panel-body">
-                <table id="train-schedule-table" class="table">
-                    <thead>
-                        <tr>
-                            <th>Train Name</th>
-                            <th>Destination</th>
-                            <th>Frequency (min)</th>
-                            <th>Next Arrival</th>
-                            <th>Minutes Away</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Add Train</div>
+                    <div class="panel-body">
+                        <form id="add-train-form">
+                            <div class="form-group">
+                                <label for="train-name" class="control-label">Train Name</label>
+                                <input type="text" class="form-control" id="train-name" placeholder="Name">
+                            </div>
+                            <div class="form-group">
+                                <label for="train-dest" class="control-label">Destination</label>
+                                <input type="text" class="form-control" id="train-dest" placeholder="Destination">
+                            </div>
+                            <div class="form-group">
+                                <label for="train-time" class="control-label">First Train Time (HH:mm - military time)</label>
+                                <input type="text" class="form-control" id="train-time" placeholder="Train Time">
+                            </div>
+                            <div class="form-group">
+                                <label for="train-freq" class="control-label">Frequency (min)</label>
+                                <input type="text" class="form-control" id="train-freq" placeholder="Train Frequency">
+                            </div>
+                            <button id="submit" type="submit" value="Submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="panel panel-primary">
-            <div class="panel-heading">Add Train</div>
-            <div class="panel-body">
-                <form>
-                    <div class="form-group">
-                        <label for="train-name" class="control-label">Train Name</label>
-                        <input type="text" class="form-control" id="train-name" placeholder="Name">
+            <div class="col-md-8">
+                <div class="panel panel-primary">
+                    <div class="panel-heading clearfix">
+                        <p>Current Train Schedule</p>
+                        <button id="refresh-train-data" value="Refresh" class="btn btn-default pull-right">Refresh</button>
                     </div>
-                    <div class="form-group">
-                        <label for="train-dest" class="control-label">Destination</label>
-                        <input type="text" class="form-control" id="train-dest" placeholder="Destination">
+                    <div class="panel-body">
+                        <table id="train-schedule-table" class="table">
+                            <thead>
+                                <tr>
+                                    <th>Train Name</th>
+                                    <th>Destination</th>
+                                    <th>Frequency (min)</th>
+                                    <th>Next Arrival</th>
+                                    <th>Minutes Away</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="form-group">
-                        <label for="train-time" class="control-label">First Train Time (HH:mm - military time)</label>
-                        <input type="text" class="form-control" id="train-time" placeholder="Train Time">
-                    </div>
-                    <div class="form-group">
-                        <label for="train-freq" class="control-label">Frequency (min)</label>
-                        <input type="text" class="form-control" id="train-freq" placeholder="Train Frequency">
-                    </div>
-                    <button id="submit" type="submit" value="Submit" class="btn btn-primary">Submit</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>

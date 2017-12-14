@@ -9,15 +9,15 @@ var config = {
     messagingSenderId: "340145154188"
 };
 firebase.initializeApp(config);
-
 var database = firebase.database();
 
-$("#submit").on("click", function(){
+//  Global variables
+var datePattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+$("#submit").on("click", function () {
     event.preventDefault();
 
-    if(validateForm()){
-        $(".form-group").removeClass("has-error");
-
+    if (validateForm()) {
         var tName = $("#train-name").val().trim();
         var tDest = $("#train-dest").val().trim();
         var tTime = $("#train-time").val().trim();
@@ -39,19 +39,30 @@ $("#submit").on("click", function(){
     }
 });
 
-database.ref().on("child_added", function(childSnapShot){
+$("#refresh-train-data").on("click", function(){
+    $("#train-schedule-table tbody tr").each(function(){
+        var td_FreqCell = $(this).find("td").eq(2);
+        var td_NextArrivalCell = $(this).find("td").eq(3);
+        var td_MinAwayCell = $(this).find("td").eq(4);
+        var freqValue = parseInt(td_FreqCell.text());
+        var nextArrivalValue = moment(td_NextArrivalCell.text(), "hh:mm A");
+        var minAwayValue = parseInt(td_MinAwayCell.text());
 
-    //  Local variables
-    //var currentDate = moment("2017-12-13 02:05:00");
+        var newTimeDiffMinutes = moment().diff(nextArrivalValue, "minutes", true);
+        if(newTimeDiffMinutes >= 0){
+            var newArrivalTime = nextArrivalValue.add(freqValue, "minutes");
+            td_NextArrivalCell.text(newArrivalTime.format("h:mm A"));
+            td_MinAwayCell.text(freqValue);
+        }
+        else if(newTimeDiffMinutes < 0){
+            td_MinAwayCell.text(Math.ceil(Math.abs(newTimeDiffMinutes)));
+        }
+    });
+});
+
+database.ref().on("child_added", function (childSnapShot) {
     var currentDate = moment();
     var currentTrainStartTime = moment.unix(childSnapShot.val().trainStartTime);
-
-    console.log("--------------------------------------------------");
-    console.log("Train: " + childSnapShot.val().trainName)
-    console.log("Current Date: " + currentDate.format("MM/DD/YYYY, hh:mm A"));
-    console.log("Train Start Time: " + currentTrainStartTime.format("MM/DD/YYYY, hh:mm A"));
-    console.log("--------------------------------------------------");
-
     var frequencyOfArrival = parseInt(childSnapShot.val().trainFrequency);
     var timeDifferenceInMinutes;
     var trainRemainder;
@@ -60,11 +71,11 @@ database.ref().on("child_added", function(childSnapShot){
 
     timeDifferenceInMinutes = currentDate.diff(currentTrainStartTime, "minutes");
 
-    if(timeDifferenceInMinutes < 0){
+    if (timeDifferenceInMinutes < 0) {
         minutesToArrival = timeDifferenceInMinutes * -1;
         nextTrainTime = currentDate.add(minutesToArrival, "minutes");
     }
-    else{
+    else {
         trainRemainder = timeDifferenceInMinutes % frequencyOfArrival;
         minutesToArrival = frequencyOfArrival - trainRemainder;
         nextTrainTime = currentDate.add(minutesToArrival, "minutes");
@@ -81,7 +92,7 @@ database.ref().on("child_added", function(childSnapShot){
     td_TrainFrequency.text(frequencyOfArrival);
 
     var td_NextArrival = $("<td>");
-    td_NextArrival.text(nextTrainTime.format("M/DD/YYYY, hh:mm A"));
+    td_NextArrival.text(nextTrainTime.format("h:mm A"));
 
     var td_MinutesAway = $("<td>");
     td_MinutesAway.text(minutesToArrival);
@@ -95,21 +106,66 @@ database.ref().on("child_added", function(childSnapShot){
     $("#train-schedule-table tbody").append(tr_TrainRecord);
 });
 
-function validateForm(){
+$(document).ready(function () {
+    $("#train-name").on("input", function () {
+        var train_input = $(this);
+        if (train_input.val()) {
+            train_input.parent().removeClass("has-error");
+        }
+        else {
+            train_input.parent().addClass("has-error");
+        }
+    });
+
+    $("#train-dest").on("input", function () {
+        var train_dest = $(this);
+        if (train_dest.val()) {
+            train_dest.parent().removeClass("has-error");
+        }
+        else {
+            train_dest.parent().addClass("has-error");
+        }
+    });
+
+    $("#train-time").on("input", function () {
+        var train_time = $(this);
+        if(train_time.val() && datePattern.test(train_time.val())){
+            train_time.parent().removeClass("has-error");
+        }
+        else{
+            train_time.parent().addClass("has-error");
+        }
+    });
+
+    $("#train-freq").on("input", function () {
+        var train_freq = $(this);
+        if(train_freq.val() && !isNaN(parseInt(train_freq.val()))){
+            train_freq.parent().removeClass("has-error");
+        }
+        else{
+            train_freq.parent().addClass("has-error");
+        }
+    });
+});
+
+function validateForm() {
     var validated = true;
-    if($("#train-name").val() === ""){
+
+    $(".form-group").removeClass("has-error");
+
+    if ($("#train-name").val() === "") {
         $("#train-name").parent().addClass("has-error");
         validated = false;
     }
-    if($("#train-dest").val() === ""){
+    if ($("#train-dest").val() === "") {
         $("#train-dest").parent().addClass("has-error");
         validated = false;
     }
-    if($("#train-time").val() === ""){
+    if ($("#train-time").val() === "" && !datePattern.test($("#train-time").val().trim())) {
         $("#train-time").parent().addClass("has-error");
         validated = false;
     }
-    if($("#train-freq").val() === ""){
+    if ($("#train-freq").val() === "" && isNaN(parseInt($("#train-freq").val()))) {
         $("#train-freq").parent().addClass("has-error");
         validated = false;
     }
