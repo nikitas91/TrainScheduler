@@ -16,7 +16,7 @@
 
 <body>
 
-    <div class="container-fluid">
+    <div class="container">
         <div class="jumbotron">
             <h1 class="text-center">Train Scheduler App</h1>
             <p class="text-center">Choo Choo. Chee Chee.</p>
@@ -50,10 +50,7 @@
             </div>
             <div class="col-md-8">
                 <div class="panel panel-primary">
-                    <div class="panel-heading clearfix">
-                        <p>Current Train Schedule</p>
-                        <button id="refresh-train-data" value="Refresh" class="btn btn-default pull-right">Refresh</button>
-                    </div>
+                    <div class="panel-heading">Current Train Schedule<span id="timer-text" class="pull-right"></span></div>
                     <div class="panel-body">
                         <table id="train-schedule-table" class="table">
                             <thead>

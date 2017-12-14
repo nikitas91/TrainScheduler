@@ -13,6 +13,10 @@ var database = firebase.database();
 
 //  Global variables
 var datePattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
+var intervalId;
+var timerRunning = false;
+var defaultTimerInSeconds = 60;
+var timerInSeconds = 60;
 
 $("#submit").on("click", function () {
     event.preventDefault();
@@ -39,27 +43,6 @@ $("#submit").on("click", function () {
     }
 });
 
-$("#refresh-train-data").on("click", function(){
-    $("#train-schedule-table tbody tr").each(function(){
-        var td_FreqCell = $(this).find("td").eq(2);
-        var td_NextArrivalCell = $(this).find("td").eq(3);
-        var td_MinAwayCell = $(this).find("td").eq(4);
-        var freqValue = parseInt(td_FreqCell.text());
-        var nextArrivalValue = moment(td_NextArrivalCell.text(), "hh:mm A");
-        var minAwayValue = parseInt(td_MinAwayCell.text());
-
-        var newTimeDiffMinutes = moment().diff(nextArrivalValue, "minutes", true);
-        if(newTimeDiffMinutes >= 0){
-            var newArrivalTime = nextArrivalValue.add(freqValue, "minutes");
-            td_NextArrivalCell.text(newArrivalTime.format("h:mm A"));
-            td_MinAwayCell.text(freqValue);
-        }
-        else if(newTimeDiffMinutes < 0){
-            td_MinAwayCell.text(Math.ceil(Math.abs(newTimeDiffMinutes)));
-        }
-    });
-});
-
 database.ref().on("child_added", function (childSnapShot) {
     var currentDate = moment();
     var currentTrainStartTime = moment.unix(childSnapShot.val().trainStartTime);
@@ -69,14 +52,14 @@ database.ref().on("child_added", function (childSnapShot) {
     var minutesToArrival;
     var nextTrainTime;
 
-    timeDifferenceInMinutes = currentDate.diff(currentTrainStartTime, "minutes");
+    timeDifferenceInMinutes = currentDate.diff(currentTrainStartTime, "minutes", true);
 
     if (timeDifferenceInMinutes < 0) {
-        minutesToArrival = timeDifferenceInMinutes * -1;
+        minutesToArrival = Math.ceil(Math.abs(timeDifferenceInMinutes));
         nextTrainTime = currentDate.add(minutesToArrival, "minutes");
     }
     else {
-        trainRemainder = timeDifferenceInMinutes % frequencyOfArrival;
+        trainRemainder = Math.floor(Math.abs(timeDifferenceInMinutes)) % frequencyOfArrival;
         minutesToArrival = frequencyOfArrival - trainRemainder;
         nextTrainTime = currentDate.add(minutesToArrival, "minutes");
     }
@@ -107,6 +90,11 @@ database.ref().on("child_added", function (childSnapShot) {
 });
 
 $(document).ready(function () {
+    //  Start auto refresh timer
+    $("#timer-text").text("Refresh in " + timerInSeconds + " seconds");
+    intervalId = setInterval(autoRefreshSchedule, 1000);
+    timerRunning = true;
+
     $("#train-name").on("input", function () {
         var train_input = $(this);
         if (train_input.val()) {
@@ -147,6 +135,43 @@ $(document).ready(function () {
         }
     });
 });
+
+function autoRefreshSchedule(){
+    timerInSeconds--;
+
+    if(timerInSeconds === 0){
+        $("#train-schedule-table tbody tr").each(function(){
+            var td_FreqCell = $(this).find("td").eq(2);
+            var td_NextArrivalCell = $(this).find("td").eq(3);
+            var td_MinAwayCell = $(this).find("td").eq(4);
+            var nextArrivalValue = moment(td_NextArrivalCell.text(), "hh:mm A");
+
+            var currentDate = moment();
+            var timeDifferenceInMinutes = moment().diff(nextArrivalValue, "minutes", true);
+            var frequencyOfArrival = parseInt(td_FreqCell.text());
+            var trainRemainder;
+            var minutesToArrival;
+            var nextTrainTime;
+
+            if (timeDifferenceInMinutes < 0) {
+                minutesToArrival = Math.ceil(Math.abs(timeDifferenceInMinutes));
+                nextTrainTime = currentDate.add(minutesToArrival, "minutes");
+            }
+            else {
+                trainRemainder = Math.floor(Math.abs(timeDifferenceInMinutes)) % frequencyOfArrival;
+                minutesToArrival = frequencyOfArrival - trainRemainder;
+                nextTrainTime = currentDate.add(minutesToArrival, "minutes");
+            }
+
+            td_NextArrivalCell.text(nextTrainTime.format("h:mm A"));
+            td_MinAwayCell.text(minutesToArrival);
+        });
+        timerInSeconds = defaultTimerInSeconds;
+    }
+
+    $("#timer-text").text("Refresh in " + timerInSeconds + " seconds");
+
+}
 
 function validateForm() {
     var validated = true;
