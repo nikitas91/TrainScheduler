@@ -24,12 +24,12 @@ $("#submit").on("click", function () {
         var tFreq = $("#train-freq").val().trim();
         var tDateTime = moment(tTime, "hh:mm").format("X");
 
-        // database.ref().push({
-        //     trainName: tName,
-        //     trainDestination: tDest,
-        //     trainStartTime: tDateTime,
-        //     trainFrequency: tFreq
-        // });
+        database.ref().push({
+            trainName: tName,
+            trainDestination: tDest,
+            trainStartTime: tDateTime,
+            trainFrequency: tFreq
+        });
 
         $("#train-name").val("");
         $("#train-dest").val("");
